@@ -1,6 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
+import { UserRegisterDto } from './dto/UserRegisterDto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -9,15 +11,19 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(userName: string, pass: string): Promise<any> {
-    const user = await this.userServices.findOne(userName);
-    if (user.password !== pass) {
-      throw new UnauthorizedException();
+  async login(loginDto: LoginDto): Promise<any> {
+    const user = await this.userServices.findOne(loginDto.email);
+    if (user.password !== loginDto.password) {
+      throw new BadRequestException('Incorrect password!');
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const payload = { userName, sub: user.ID };
+    const payload = { email: loginDto.email, sub: user.id };
     return {
       accessToken: await this.jwtService.signAsync(payload),
     };
+  }
+
+  async signUp(userRegisterDto: UserRegisterDto) {
+    const user = await this.userServices.create(userRegisterDto);
+    return user;
   }
 }
