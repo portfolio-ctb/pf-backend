@@ -6,7 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
-import { JWT_SECRET_KEY } from 'src/constants';
+import {
+  JWT_EXPIRE_TIME_IN_SECOND,
+  JWT_SECRET_KEY,
+  MILISECONDS_PER_SECOND,
+} from 'src/constants';
 
 @Module({
   imports: [
@@ -14,7 +18,9 @@ import { JWT_SECRET_KEY } from 'src/constants';
     JwtModule.register({
       global: true,
       secret: JWT_SECRET_KEY,
-      signOptions: { expiresIn: '60s' },
+      signOptions: {
+        expiresIn: JWT_EXPIRE_TIME_IN_SECOND * MILISECONDS_PER_SECOND,
+      },
     }),
   ],
   controllers: [AuthController],
